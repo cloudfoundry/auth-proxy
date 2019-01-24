@@ -1,0 +1,4 @@
+cmd/cf-auth-proxy
+cmd/cmd
+
+vendor
