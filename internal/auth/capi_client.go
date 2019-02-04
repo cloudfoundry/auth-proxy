@@ -102,6 +102,8 @@ func (c *CAPIClient) IsAuthorized(sourceId string, clientToken string) bool {
 }
 
 func (c *CAPIClient) AvailableSourceIds(authToken string) []string {
+	// TODO - this method can't even return an error, we're begging to cache
+	// an empty list
 	var sourceIds []string
 	req, err := http.NewRequest(http.MethodGet, c.externalCapi+"/v3/apps", nil)
 	if err != nil {
@@ -109,6 +111,7 @@ func (c *CAPIClient) AvailableSourceIds(authToken string) []string {
 		return nil
 	}
 
+	preserveScheme, preserveHost := req.URL.Scheme, req.URL.Host
 	for {
 		resources, nextPageURL, err := c.doResourceRequest(req, authToken, c.storeAppsLatency)
 		if err != nil {
@@ -123,7 +126,9 @@ func (c *CAPIClient) AvailableSourceIds(authToken string) []string {
 		if nextPageURL == nil {
 			break
 		}
+
 		req.URL = nextPageURL
+		req.URL.Scheme, req.URL.Host = preserveScheme, preserveHost
 	}
 
 	req, err = http.NewRequest(http.MethodGet, c.externalCapi+"/v3/service_instances", nil)
