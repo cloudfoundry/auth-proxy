@@ -44,7 +44,7 @@ func main() {
 	)
 
 	capiClient := auth.NewCAPIClient(
-		cfg.CAPI.ExternalAddr,
+		cfg.CAPI.Addr,
 		buildCAPIClient(cfg),
 		metrics,
 		log,
