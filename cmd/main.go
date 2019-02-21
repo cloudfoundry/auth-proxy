@@ -62,6 +62,8 @@ func main() {
 	proxy := NewCFAuthProxy(
 		cfg.GatewayAddr,
 		cfg.Addr,
+		cfg.CertPath,
+		cfg.KeyPath,
 		WithAuthMiddleware(middlewareProvider.Middleware),
 	)
 

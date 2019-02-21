@@ -15,12 +15,14 @@ type CFAuthProxy struct {
 
 	gatewayURL *url.URL
 	addr       string
+	certPath   string
+	keyPath    string
 
 	authMiddleware   func(http.Handler) http.Handler
 	accessMiddleware func(http.Handler) *auth.AccessHandler
 }
 
-func NewCFAuthProxy(gatewayAddr, addr string, opts ...CFAuthProxyOption) *CFAuthProxy {
+func NewCFAuthProxy(gatewayAddr, addr, certPath, keyPath string, opts ...CFAuthProxyOption) *CFAuthProxy {
 	gatewayURL, err := url.Parse(gatewayAddr)
 	if err != nil {
 		log.Fatalf("failed to parse gateway address: %s", err)
@@ -29,6 +31,8 @@ func NewCFAuthProxy(gatewayAddr, addr string, opts ...CFAuthProxyOption) *CFAuth
 	p := &CFAuthProxy{
 		gatewayURL: gatewayURL,
 		addr:       addr,
+		certPath:   certPath,
+		keyPath:    keyPath,
 		authMiddleware: func(h http.Handler) http.Handler {
 			return h
 		},
@@ -84,11 +88,11 @@ func (p *CFAuthProxy) Start() {
 	}
 
 	if p.blockOnStart {
-		log.Fatal(server.Serve(ln))
+		log.Fatal(server.ServeTLS(ln, p.certPath, p.keyPath))
 	}
 
 	go func() {
-		log.Fatal(server.Serve(ln))
+		log.Fatal(server.ServeTLS(ln, p.certPath, p.keyPath))
 	}()
 }
 
